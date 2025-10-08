@@ -39,7 +39,7 @@ app.get("/szobakkihasznaltsaga", (req, res) => {
 })  
 
 app.get("/valasztottszoba", (req, res) =>{
-    const sql = " ";
+    const sql = "SELECT v.vnev AS 'Név', f.erk AS 'Érkezés', f.tav AS 'Távozás' FROM foglalasok f JOIN vendegek v ON f.vendeg = v.vsorsz WHERE f.szoba IN (1,2,3,4,5,6,7) ORDER BY v.vnev; ";
     db.query(sql, (err, result) => {
         if(err) return res.json(err);
         return res.json(result)
