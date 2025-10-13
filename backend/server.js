@@ -13,8 +13,8 @@ app.use(cors());
         user: "root",
         host: "127.0.0.1",
         port: 3307,
-        password: "root",
-        database: "",
+        password: "",
+        database: "fogado",
 });
 
 // Gyökér útvonal, tesztelésre
@@ -22,29 +22,29 @@ app.use(cors());
         res.send("Fut a backend!");
 })
 
-app.get("/hettorpefogado", (req, res) => {
+app.get("/hettorpefogado", (req, res) => {  
     const sql = "SELECT DISTINCT sznev, agy FROM foglalasok INNER JOIN szobak ON foglalasok.szoba = szobak.szazon INNER JOIN vendegek ON foglalasok.vendeg = vendegek.vsorsz;";
     db.query(sql, (err, result) => {
-        if (err) return res.json(err);
-        return res.json(result)
+    if (err) return res.json(err);
+    return res.json(result)
     })
-})  
-
-app.get("/szobakkihasznaltsaga", (req, res) => {
+});
+ 
+app.get("/szobakkihasznaltsaga", (req, res) => {  
     const sql = " SELECT sznev, SUM(fo) AS osszes_vendeg, SUM(DATEDIFF(tav, erk)) AS osszes_ott_toltott_ejszaka FROM foglalasok INNER JOIN szobak ON foglalasok.szoba = szobak.szazon INNER JOIN vendegek ON foglalasok.vendeg = vendegek.vsorsz GROUP BY sznev;";
     db.query(sql, (err, result) => {
-        if (err) return res.json(err);
-        return res.json(result)
+    if (err) return res.json(err);
+    return res.json(result)
     })
-})  
-
-app.get("/valasztottszoba", (req, res) =>{
-    const sql = "SELECT v.vnev AS 'Név', f.erk AS 'Érkezés', f.tav AS 'Távozás' FROM foglalasok f JOIN vendegek v ON f.vendeg = v.vsorsz WHERE f.szoba IN (1,2,3,4,5,6,7) ORDER BY v.vnev; ";
+});
+ 
+app.get("/valasztottszoba", (req, res) => {
+    const sql = "SELECT sz.sznev AS 'Szobanév', f.erk AS 'Érkezés', f.tav AS 'Távozás' FROM szobak sz LEFT JOIN (SELECT szoba, erk, tav FROM foglalasok WHERE (szoba, erk) IN (SELECT szoba, MAX(erk) FROM foglalasok GROUP BY szoba)) f ON sz.szazon = f.szoba ORDER BY sz.sznev;";
     db.query(sql, (err, result) => {
-        if(err) return res.json(err);
-        return res.json(result)
+    if (err) return res.json(err);
+    return res.json(result)
     })
-})
+});
 
 
 // Szerver indítása a 3001-es porton
